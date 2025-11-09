@@ -1,0 +1,9 @@
+{
+  "name": "traduttore-excel",
+  "version": "1.0.0",
+  "description": "Traduttore Excel multilingua con DeepL",
+  "type": "module",
+  "engines": {
+    "node": ">=18.x"
+  }
+}

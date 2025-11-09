@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        button {
+            padding: 10px 20px;
+            background: #000;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 1rem;
+            overflow-x: auto;
+        }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Test API Traduzione</h1>
+    
+    <button onclick="testAPI()">Test API /api/test</button>
+    <button onclick="testTranslate()">Test Traduzione</button>
+    <button onclick="clearLogs()">Pulisci Log</button>
+    
+    <h2>Risultati:</h2>
+    <div id="output"></div>
+
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(message, isError = false) {
+            const pre = document.createElement('pre');
+            pre.className = isError ? 'error' : 'success';
+            pre.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            output.appendChild(pre);
+        }
+
+        function clearLogs() {
+            output.innerHTML = '';
+        }
+
+        async function testAPI() {
+            log('Testing /api/test...');
+            try {
+                const response = await fetch('/api/test');
+                const data = await response.json();
+                log('✅ /api/test Response:\n' + JSON.stringify(data, null, 2));
+            } catch (error) {
+                log('❌ Errore /api/test: ' + error.message, true);
+            }
+        }
+
+        async function testTranslate() {
+            log('Testing /api/translate with POST...');
+            
+            const testData = {
+                text: 'Ciao mondo',
+                targetLang: 'EN-GB'
+            };
+            
+            log('Sending:\n' + JSON.stringify(testData, null, 2));
+            
+            try {
+                const response = await fetch('/api/translate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                log(`Response status: ${response.status} ${response.statusText}`);
+                
+                const contentType = response.headers.get('content-type');
+                log(`Content-Type: ${contentType}`);
+                
+                if (contentType && contentType.includes('application/json')) {
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        log('✅ Traduzione riuscita:\n' + JSON.stringify(data, null, 2));
+                    } else {
+                        log('❌ Errore API:\n' + JSON.stringify(data, null, 2), true);
+                    }
+                } else {
+                    const text = await response.text();
+                    log('❌ Risposta non-JSON:\n' + text, true);
+                }
+            } catch (error) {
+                log('❌ Errore fetch: ' + error.message, true);
+                log('Stack: ' + error.stack, true);
+            }
+        }
+
+        // Auto-test all'avvio
+        window.addEventListener('load', () => {
+            log('=== Test automatico all\'avvio ===');
+            setTimeout(testAPI, 100);
+            setTimeout(testTranslate, 1000);
+        });
+    </script>
+</body>
+</html>
