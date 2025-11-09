@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Traduttore Excel Multilingua</title>
+    <title>Configuratore Prodotto - Traduzione</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
@@ -13,209 +13,365 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            background: #f5f5f7;
             min-height: 100vh;
-            padding: 1rem;
-            color: #000;
-            font-size: 0.813rem;
+            padding: 1rem 0.75rem;
+            color: #1d1d1f;
+            font-size: 14px;
+            line-height: 1.3;
+            font-weight: 400;
+            letter-spacing: -0.022em;
         }
 
         .container {
             max-width: 900px;
             margin: 0 auto;
-            background: white;
-            border: 1px solid #e5e5e5;
-            padding: 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-radius: 10px;
+            padding: 0;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            overflow: hidden;
         }
 
         .header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid #e5e5e5;
-        }
-
-        .icon {
-            width: 20px;
-            height: 20px;
-            color: #000;
+            background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
         }
 
         h1 {
-            color: #000;
-            font-size: 1rem;
+            color: #1d1d1f;
+            font-size: 20px;
             font-weight: 600;
+            letter-spacing: -0.005em;
+        }
+
+        .content {
+            padding: 1rem;
         }
 
         .upload-zone {
-            border: 1px dashed #d4d4d4;
-            padding: 1rem;
+            border: 2px dashed #d2d2d7;
+            border-radius: 8px;
+            padding: 1.25rem 1rem;
             text-align: center;
             cursor: pointer;
-            transition: all 0.15s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             margin-bottom: 0.75rem;
-            background: #fafafa;
+            background: #fbfbfd;
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
 
+        .upload-zone::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 8px;
+            padding: 2px;
+            background: linear-gradient(135deg, #1d1d1f, #4a4a4a);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .upload-zone:hover::before {
+            opacity: 1;
+        }
+
         .upload-zone:hover {
-            border-color: #000;
-            background: #f5f5f5;
+            border-color: transparent;
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
         }
 
         .upload-icon {
-            width: 24px;
-            height: 24px;
-            color: #404040;
-            margin-bottom: 0.375rem;
-            stroke-width: 2;
+            width: 36px;
+            height: 36px;
+            color: #1d1d1f;
+            margin-bottom: 0.4rem;
+            stroke-width: 1.5;
+            pointer-events: none;
         }
 
         .file-info {
-            color: #404040;
+            color: #1d1d1f;
             font-weight: 400;
-            font-size: 0.75rem;
+            font-size: 14px;
+            letter-spacing: -0.022em;
+            pointer-events: none;
+        }
+
+        .hidden {
+            display: none;
         }
 
         .actions {
             display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
+            gap: 0.6rem;
+            margin-bottom: 0.75rem;
         }
 
         button {
-            padding: 0.375rem 0.75rem;
-            background: #000;
+            padding: 0.5rem 1.25rem;
+            background: #1d1d1f;
             color: white;
-            border: 1px solid #000;
-            font-weight: 500;
+            border: none;
+            border-radius: 980px;
+            font-weight: 400;
             cursor: pointer;
-            font-size: 0.75rem;
-            transition: all 0.15s;
+            font-size: 14px;
+            letter-spacing: -0.022em;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            min-height: 36px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         button:hover:not(:disabled) {
-            background: #333;
+            background: #2d2d2f;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
         }
 
         button:disabled {
-            background: #d4d4d4;
-            border-color: #d4d4d4;
-            color: #737373;
+            background: #d2d2d7;
             cursor: not-allowed;
+            box-shadow: none;
         }
 
         .btn-primary {
             flex: 1;
-            background: #000;
+        }
+
+        #downloadBtn {
+            background: #1d1d1f;
+        }
+
+        #downloadBtn:hover:not(:disabled) {
+            background: #2d2d2f;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 0.5rem;
-            font-size: 0.75rem;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 0.75rem;
+            font-size: 13px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
         th, td {
-            padding: 0.375rem 0.5rem;
+            padding: 0.5rem 0.75rem;
             text-align: left;
-            border-bottom: 1px solid #e5e5e5;
+            border-bottom: 1px solid #f5f5f7;
         }
 
         th {
             background: #fafafa;
-            font-weight: 500;
-            color: #000;
+            color: #6e6e73;
+            font-weight: 600;
+            font-size: 10px;
             text-transform: uppercase;
-            font-size: 0.688rem;
-            letter-spacing: 0.025em;
+            letter-spacing: 0.06em;
+            padding: 0.5rem 0.75rem;
         }
 
-        tr:hover {
+        td {
+            background: white;
+            color: #1d1d1f;
+            font-size: 13px;
+            letter-spacing: -0.016em;
+            line-height: 1.3;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
             background: #fafafa;
         }
 
         .progress {
-            background: #fafafa;
-            border: 1px solid #e5e5e5;
-            padding: 0.5rem;
-            margin-top: 0.5rem;
-            color: #404040;
-            font-size: 0.75rem;
+            background: #f5f5f7;
+            border-radius: 8px;
+            padding: 0.6rem 0.85rem;
+            margin-top: 0.75rem;
+            color: #6e6e73;
+            font-size: 13px;
+            letter-spacing: -0.016em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
         .error {
-            background: #fafafa;
-            border: 1px solid #a3a3a3;
-            padding: 0.5rem;
-            margin-top: 0.5rem;
-            color: #404040;
-            font-size: 0.75rem;
+            background: #fff5f5;
+            border: 1px solid #ffcccc;
+            border-radius: 8px;
+            padding: 0.6rem 0.85rem;
+            margin-bottom: 0.75rem;
+            color: #d70015;
+            font-size: 13px;
+            letter-spacing: -0.016em;
         }
 
         .spinner {
             display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255,255,255,0.3);
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
             border-top-color: white;
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s linear infinite;
+            flex-shrink: 0;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        .hidden {
-            display: none;
+        #dataSection .info-box {
+            background: linear-gradient(135deg, #f5f5f7 0%, #fafafa 100%);
+            padding: 0.7rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            color: #1d1d1f;
+            font-size: 14px;
+            letter-spacing: -0.022em;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            text-align: center;
+        }
+
+        #dataSection .info-box strong {
+            color: #1d1d1f;
+            font-weight: 600;
+        }
+
+        #tableContainer {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Scrollbar personalizzata stile macOS */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Animazione fade in */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            animation: fadeIn 0.6s ease-out;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-            </svg>
-            <h1>Traduttore Excel Multilingua</h1>
+            <h1>Configuratore Prodotto - Traduzione</h1>
         </div>
 
-        <div id="errorBox" class="error hidden"></div>
+        <div class="content">
+            <div id="errorBox" class="error hidden"></div>
 
-        <label class="upload-zone" onclick="document.getElementById('fileInput').click()">
-            <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <div class="file-info" id="fileInfo">
-                Carica file Excel (colonna A con testo italiano)
-            </div>
-            <input type="file" id="fileInput" accept=".xlsx,.xls" class="hidden" onchange="handleFileUpload(event)" />
-        </label>
+            <label class="upload-zone" for="fileInput">
+                <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <div class="file-info" id="fileInfo">
+                    Carica un file Excel
+                </div>
+                <input type="file" id="fileInput" accept=".xlsx,.xls" class="hidden" onchange="handleFileUpload(event)" />
+            </label>
 
-        <div id="dataSection" class="hidden">
-            <p style="margin-bottom: 1rem; color: #6b7280">
-                Righe caricate: <strong id="rowCount">0</strong>
-            </p>
-            <div class="actions">
-                <button class="btn-primary" id="translateBtn" onclick="handleTranslate()">
-                    Traduci
-                </button>
-                <button class="hidden" id="downloadBtn" onclick="handleDownload()">
-                    📥 Scarica Excel
-                </button>
+            <div id="dataSection" class="hidden">
+                <div class="info-box">
+                    Righe caricate: <strong id="rowCount">0</strong>
+                </div>
+                <div class="actions">
+                    <button class="btn-primary" id="translateBtn" onclick="handleTranslate()">
+                        Traduci
+                    </button>
+                    <button class="hidden" id="downloadBtn" onclick="handleDownload()">
+                        Scarica
+                    </button>
+                </div>
             </div>
+
+            <div id="tableContainer" class="hidden"></div>
+            <div id="progressBox" class="progress hidden"></div>
         </div>
-
-        <div id="tableContainer" class="hidden" style="overflow-x: auto"></div>
-        <div id="progressBox" class="progress hidden"></div>
     </div>
 
     <script>
@@ -262,7 +418,7 @@
                     document.getElementById('downloadBtn').classList.add('hidden');
                     hideError();
                 } catch (err) {
-                    showError('Errore nel caricamento del file: ' + err.message);
+                    showError('Si è verificato un errore durante il caricamento del file.');
                 }
             };
             reader.readAsBinaryString(file);
@@ -298,7 +454,6 @@
 
         async function handleTranslate() {
             if (data.length === 0) {
-                alert('Carica prima un file Excel');
                 return;
             }
 
@@ -306,7 +461,7 @@
             const progressBox = document.getElementById('progressBox');
             
             translateBtn.disabled = true;
-            translateBtn.innerHTML = '<span class="spinner"></span> Traduzione in corso...';
+            translateBtn.innerHTML = '<span class="spinner"></span><span>Traduzione in corso</span>';
             progressBox.classList.remove('hidden');
             hideError();
 
@@ -329,20 +484,20 @@
                             const translation = await translateText(italianText, lang.code);
                             rowTranslations.push(translation);
                         } catch (err) {
-                            rowTranslations.push(`[Errore: ${lang.name}]`);
+                            rowTranslations.push(`Errore`);
                         }
                         await new Promise(resolve => setTimeout(resolve, 200));
                     }
                     
                     translatedData.push(rowTranslations);
-                    progressBox.textContent = `⏳ Traduzione in corso... ${i + 1}/${data.length} righe completate`;
+                    progressBox.innerHTML = `<span class="spinner"></span><span>Traduzione in corso... ${i + 1} di ${data.length}</span>`;
                     updateTable();
                 }
 
                 document.getElementById('downloadBtn').classList.remove('hidden');
                 progressBox.classList.add('hidden');
             } catch (err) {
-                showError(`Errore durante la traduzione: ${err.message}`);
+                showError('Si è verificato un errore durante la traduzione.');
                 progressBox.classList.add('hidden');
             } finally {
                 translateBtn.disabled = false;
@@ -357,9 +512,9 @@
             tableContainer.classList.remove('hidden');
 
             let html = '<table><thead><tr>';
-            html += '<th>Italiano (A)</th>';
+            html += '<th>Italiano</th>';
             targetLanguages.forEach(lang => {
-                html += `<th>${lang.name} (${lang.column})</th>`;
+                html += `<th>${lang.name}</th>`;
             });
             html += '</tr></thead><tbody>';
 
@@ -384,7 +539,7 @@
             XLSX.utils.book_append_sheet(wb, ws, 'Traduzioni');
             ws['!cols'] = Array(headers.length).fill({ width: 25 });
             
-            XLSX.writeFile(wb, 'traduzioni_multilingua.xlsx');
+            XLSX.writeFile(wb, 'configuratore_traduzione.xlsx');
         }
     </script>
 </body>
